@@ -1,4 +1,12 @@
-var class_based, inventor_based, type_toggle, city, app_year, friends;
+var class_based, inventor_based, type_toggle, city, app_year, friends, 
+energy_color = {
+    "Wind": "#3C8FBB",
+    "Solar": "#FFDB87",
+    "Hydro": "#4E6EB1",
+    "Nuclear": "#D9444E",
+    "Biofuel": "#9DD7A5",
+    "Geothermal": "#F77C48"
+};
 $(function () {
     "use strict";
     $(function () {
@@ -239,7 +247,7 @@ var map = AmCharts.makeChart("chartdiv", {
     }]
 });
 
-function createClientDatabase(e) {
+function createClassDatabase(e) {
     class_based = TAFFY(e), console.log("Succeed to get class Based Data")
 }
 
@@ -252,13 +260,30 @@ function createTypeToggleDatabase(e) {
 }
 
 function creat_database() {
-    $.get("https://dl.dropboxusercontent.com/s/052wqqnok9fcfi1/client-based.json", function (e) {
-        createClientDatabase(e)
-    }), $.get("https://dl.dropboxusercontent.com/s/09kv3sju3im78jh/inventor-based.json", function (e) {
-        createInventorDatabase(e)
-    }), $.get("https://dl.dropboxusercontent.com/s/nwvcg20huq7v99g/type-toggle.json", function (e) {
-        createTypeToggleDatabase(e)
-    })
+    var loading = $.loading();
+    loading.open(10000);
+    var a1 = $.ajax({
+        method: "get",
+        dataType: "json",
+        url: "https://dl.dropboxusercontent.com/s/052wqqnok9fcfi1/client-based.json"
+    }),
+        a2 = $.ajax({
+            method: "get",
+            dataType: "json",
+            url: "https://dl.dropboxusercontent.com/s/09kv3sju3im78jh/inventor-based.json"
+        }),
+        a3 = $.ajax({
+            method: "get",
+            dataType: "json",
+            url: "https://dl.dropboxusercontent.com/s/nwvcg20huq7v99g/type-toggle.json"
+        });
+    
+    $.when(a1, a2, a3).done(function (r1, r2, r3) {
+        createClassDatabase(r1[0]);
+        createInventorDatabase(r2[0]);
+        createTypeToggleDatabase(r3[0]);
+        loading.close();
+    });
 }
 
 function get_assignee_type() {
@@ -284,6 +309,29 @@ function get_assignee_type() {
     return assignee_type;
 }
 
+function get_energy_type() {
+    var energy_type = [];
+    if ($("#ck-sector-wind").is(":checked")) {
+        energy_type.push("Wind");
+    }
+    if ($("#ck-sector-solar").is(":checked")) {
+        energy_type.push("Solar");
+    }
+    if ($("#ck-sector-hydro").is(":checked")) {
+        energy_type.push("Hydro");
+    }
+    if ($("#ck-sector-nuclear").is(":checked")) {
+        energy_type.push("Nuclear");
+    }
+    if ($("#ck-sector-biofuel").is(":checked")) {
+        energy_type.push("Biofuel");
+    }
+    if ($("#ck-sector-geothermal").is(":checked")) {
+        energy_type.push("Geothermal");
+    }
+    return energy_type;
+}
+
 function get_patent() {
     var patent = [], assignee_type = get_assignee_type();
 
@@ -293,98 +341,88 @@ function get_patent() {
             state1: city.replace("US-", ""),
             country1: "US",
         }).each(function (e) {
-            patent.push(e.patent);
+            patent.push(Number(e.patent));
         })
     }
 
     return patent;
 }
 
-function query_by_selector(e, a, i, t) {
-    var patent = get_patent();
+function query_by_selector(energy_type, a, i, g) {
+    var patent = get_patent(), nodes = [], edges = [];
+    conf = {
+        "state1": city.replace("US-", ""),
+        "sector": energy_type,
+        "application_year": app_year
+    };
 
-    if(patent.length > 0) {
-        a({
-            patent: patent,
-            state1: city.replace("US-", ""),
-            sector: e,
-            application_year: app_year
-        }).each(function (e) {
-            var a = [];
-            a.push(i ? e.alter_class : e.alter_inv_Lastname), a.push(i ? e.focal_class : e.focal_inv_Lastname), t.push(a)
-        })
-    } else {
-        a({
-            state1: city.replace("US-", ""),
-            sector: e,
-            application_year: app_year
-        }).each(function (e) {
-            var a = [];
-            a.push(i ? e.alter_class : e.alter_inv_Lastname), a.push(i ? e.focal_class : e.focal_inv_Lastname), t.push(a)
-        })
+    if (patent.length > 0) {
+        conf["patent"] = patent;
     }
+
+    a(conf).each(function (e) {
+        var temp = [];
+        if(i) {
+            nodes.push(e.alter_class);
+            nodes.push(e.focal_class);
+            temp.push(i ? e.alter_class : e.alter_inv_Lastname);
+            temp.push(i ? e.focal_class : e.focal_inv_Lastname);
+        } else {
+            nodes.push(e.alter_inv_Lastname);
+            nodes.push(e.focal_inv_Lastname);
+            temp.push(e.alter_inv_Lastname);
+            temp.push(e.focal_inv_Lastname);
+        }
+        edges.push(temp);
+    })
+
+    // remove duplicates from nodes
+    var uniqueNodes = [];
+    $.each(nodes, function (i, el) {
+        if ($.inArray(el, uniqueNodes) === -1) uniqueNodes.push(el);
+    });
+
+    g.addNodesFrom(uniqueNodes, { color: energy_color[energy_type] });
+    g.addEdgesFrom(edges);
+
 }
 
-function get_queried_data() {
-    var e, a = [],
-        i = !1;
-    return class_based && inventor_based && ($("#switch-class-inventor").is(":checked") ? (e = class_based, i = !0) : e = inventor_based, $("#ck-sector-wind").is(":checked") && query_by_selector("Wind", e, i, a), $("#ck-sector-solar").is(":checked") && query_by_selector("Solar", e, i, a), $("#ck-sector-hydro").is(":checked") && query_by_selector("Hydro", e, i, a), $("#ck-sector-nuclear").is(":checked") && query_by_selector("Nuclear", e, i, a), $("#ck-sector-biofuel").is(":checked") && query_by_selector("Biofuel", e, i, a), $("#ck-sector-geothermal").is(":checked") && query_by_selector("Geothermal", e, i, a)), a
-}
+// generate a graph from query data
+function generateGraph(G) {
+    var e, isClassBased = false;
 
-function get_node_color() {
-    var node_color = defalt_color = '#d3d3d3', isAnyoneChecked = false;
+    if(class_based && inventor_based && type_toggle) {
+        if($("#switch-class-inventor").is(":checked")) {
+            e = class_based;
+            isClassBased = true;
+        } else {
+            e = inventor_based;
+        }
 
-    if (!isAnyoneChecked && $("#ck-sector-wind").is(":checked")) {
-        node_color = '#3C8FBB';
-        isAnyoneChecked = true;
-    }
-    if ($("#ck-sector-solar").is(":checked")) {
-        if (!isAnyoneChecked) {
-            node_color = '#FFDB87';
-            isAnyoneChecked = true;
-        } else {
-            return defalt_color;
+        if ($("#ck-sector-wind").is(":checked")) {
+            query_by_selector("Wind", e, isClassBased, G);
+        }
+        if ($("#ck-sector-solar").is(":checked")) {
+            query_by_selector("Solar", e, isClassBased, G);
+        }
+        if ($("#ck-sector-hydro").is(":checked")) {
+            query_by_selector("Hydro", e, isClassBased, G);
+        }
+        if ($("#ck-sector-nuclear").is(":checked")) {
+            query_by_selector("Nuclear", e, isClassBased, G);
+        }
+        if ($("#ck-sector-biofuel").is(":checked")) {
+            query_by_selector("Biofuel", e, isClassBased, G);
+        }
+        if ($("#ck-sector-geothermal").is(":checked")) {
+            query_by_selector("Geothermal", e, isClassBased, G);
         }
     }
-    if ($("#ck-sector-hydro").is(":checked")) {
-        if (!isAnyoneChecked) {
-            node_color = '#4E6EB1';
-            isAnyoneChecked = true;
-        } else {
-            return defalt_color;
-        }
-    }
-    if ($("#ck-sector-nuclear").is(":checked")) {
-        if (!isAnyoneChecked) {
-            node_color = '#D9444E';
-            isAnyoneChecked = true;
-        } else {
-            return defalt_color;
-        }
-    }
-    if ($("#ck-sector-biofuel").is(":checked")) {
-        if (!isAnyoneChecked) {
-            node_color = '#9DD7A5';
-            isAnyoneChecked = true;
-        } else {
-            return defalt_color;
-        }
-    }
-    if ($("#ck-sector-geothermal").is(":checked")) {
-        if (!isAnyoneChecked) {
-            return '#F77C48';
-        } else {
-            return defalt_color;
-        }
-    }
-
-    return node_color;
 }
 
 function update_graph() {
-    var e = get_queried_data(), node_color = get_node_color(),
-        a = new jsnx.Graph;
-    a.addEdgesFrom(e), jsnx.draw(a, {
+    var g = new jsnx.Graph;
+    generateGraph(g), jsnx.draw(g, {
         element: "#canvas",
         weighted: !0,
         withLabels: !0,
@@ -392,8 +430,12 @@ function update_graph() {
             fill: "Black"
         },
         nodeStyle: {
-            fill: node_color,
-            stroke: node_color
+            fill: function (d) {
+                return d.data.color;
+            },
+            stroke: function (d) {
+                return d.data.color;
+            }
         },
         edgeStyle: {
             "stroke-width": 10,
@@ -454,5 +496,5 @@ $(document).ready(function () {
             update_graph();
         }
     });
-    
+
 });
