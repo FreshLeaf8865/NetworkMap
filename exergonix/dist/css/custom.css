@@ -1,0 +1,205 @@
+.checkbox {
+	padding-left: 5px;
+}
+
+.checkbox label {
+	display: inline-block;
+	padding-left: 5px;
+	position: relative;
+}
+
+.checkbox label::before {
+	-o-transition: .3s ease-in-out;
+	-webkit-transition: .3s ease-in-out;
+	background-color: #fff;
+	border-radius: 1px;
+	border: 1px solid rgba(120, 130, 140, .13);
+	content: "";
+	display: inline-block;
+	height: 17px;
+	left: 0;
+	margin-left: -20px;
+	position: absolute;
+	transition: .3s ease-in-out;
+	width: 17px;
+	outline: 0!important;
+}
+
+.checkbox label::after {
+	color: #2b2b2b;
+	display: inline-block;
+	font-size: 11px;
+	height: 16px;
+	left: 0;
+	margin-left: -20px;
+	padding-left: 3px;
+	padding-top: 1px;
+	position: absolute;
+	top: 0;
+	width: 16px;
+}
+
+.checkbox input[type=checkbox] {
+	cursor: pointer;
+	opacity: 0;
+	z-index: 1;
+	outline: 0!important;
+}
+
+.checkbox input[type=checkbox]:disabled+label {
+	opacity: .65;
+}
+
+.checkbox input[type=checkbox]:focus+label::before {
+	outline-offset: -2px;
+	outline: 0;
+	outline: dotted thin;
+}
+
+.checkbox input[type=checkbox]:checked+label::after {
+	content: "\f00c";
+	font-family: FontAwesome;
+}
+
+.checkbox input[type=checkbox]:disabled+label::before {
+	background-color: #e4e7ea;
+	cursor: not-allowed;
+}
+
+.checkbox.checkbox-circle label::before {
+	border-radius: 50%;
+}
+
+.checkbox.checkbox-inline {
+	margin-top: 0;
+}
+
+.checkbox.checkbox-single label {
+	height: 17px;
+}
+
+.checkbox-primary input[type=checkbox]:checked+label::before {
+	background-color: #ab8ce4;
+	border-color: #ab8ce4;
+}
+
+.checkbox-primary input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-danger input[type=checkbox]:checked+label::before {
+	background-color: #fb9678;
+	border-color: #fb9678;
+}
+
+.checkbox-danger input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-info input[type=checkbox]:checked+label::before {
+	background-color: #03a9f3;
+	border-color: #03a9f3;
+}
+
+.checkbox-info input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-warning input[type=checkbox]:checked+label::before {
+	background-color: #fec107;
+	border-color: #fec107;
+}
+
+.checkbox-warning input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-success input[type=checkbox]:checked+label::before {
+	background-color: #00c292;
+	border-color: #00c292;
+}
+
+.checkbox-success input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-purple input[type=checkbox]:checked+label::before {
+	background-color: #9675ce;
+	border-color: #9675ce;
+}
+
+.checkbox-purple input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-red input[type=checkbox]:checked+label::before {
+	background-color: #fb9678;
+	border-color: #fb9678;
+}
+
+.checkbox-red input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-inverse input[type=checkbox]:checked+label::before {
+	background-color: #4c5667;
+	border-color: #4c5667;
+}
+
+.checkbox-inverse input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-wind input[type=checkbox]:checked+label::before {
+	background-color: #3C8FBB;
+	border-color: #3C8FBB;
+}
+
+.checkbox-wind input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-solar input[type=checkbox]:checked+label::before {
+	background-color: #FFDB87;
+	border-color: #FFDB87;
+}
+
+.checkbox-solar input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-hydro input[type=checkbox]:checked+label::before {
+	background-color: #4E6EB1;
+	border-color: #4E6EB1;
+}
+
+.checkbox-hydro input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-nuclear input[type=checkbox]:checked+label::before {
+	background-color: #D9444E;
+	border-color: #D9444E;
+}
+
+.checkbox-nuclear input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-biofuel input[type=checkbox]:checked+label::before {
+	background-color: #9DD7A5;
+	border-color: #9DD7A5;
+}
+
+.checkbox-biofuel input[type=checkbox]:checked+label::after {
+	color: #fff;
+}
+
+.checkbox-geothermal input[type=checkbox]:checked+label::before {
+	background-color: #F77C48;
+	border-color: #F77C48;
+}
+
+.checkbox-geothermal input[type=checkbox]:checked+label::after {
+	color: #fff;
+}

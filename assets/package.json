@@ -90,7 +90,6 @@
       "name": "Twitter, Inc."
     }
   ],
-  "dependencies": {},
   "deprecated": false,
   "description": "The most popular front-end framework for developing responsive, mobile first projects on the web.",
   "devDependencies": {
